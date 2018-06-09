@@ -4,6 +4,8 @@ const realm_server = "iostestapp.us1.cloud.realm.io";
 const username = "test-user";
 const password = "password";
 
+var NOTIFIER_PATH = '^/([^/]+)/private$';
+
 const golferSchema = {
 	name: "Golfer",
 	properties: {
@@ -49,7 +51,7 @@ Realm.Sync.User.login(`https://${realm_server}`, username, password).then(
 			}
 			// ***************************************************************************
 
-			// EXAMPLE 2 *** get all golfers that belong to club "Bayview Golf Club"******
+			// EXAMPLE 2 *** get all golfers that belong to club "Yarrabend Golf Club"******
 			const club = realm
 				.objects("Club")
 				.filtered(`name = 'Yarrabend Golf Club'`);
@@ -82,6 +84,48 @@ Realm.Sync.User.login(`https://${realm_server}`, username, password).then(
 			}
 			console.log(`\n`);
 			// ***************************************************************************
+
+         //
+         //
+         console.log("\n\nOBSERVER EXAMPLES\n")
+         //
+         //
+
+			// EXAMPLE 5 *** all golfers in club = Yarrabend Golf Club ******
+			// Observe Collection Notifications
+			golfersInClub.addListener((golfers, changes) => {
+
+				// Update UI in response to inserted objects
+				changes.insertions.forEach((index) => {
+					let insertedGolfer = golfers[index];
+					console.log("added golfer to Yarrabend:", insertedGolfer)
+				});
+
+				// Update UI in response to modified objects
+				changes.modifications.forEach((index) => {
+					let modifiedGolfer = golfers[index];
+					console.log("modified golfer in Yarrabend:", modifiedGolfer)
+				});
+
+				// Update UI in response to deleted objects
+				changes.deletions.forEach((index) => {
+					// Deleted objects cannot be accessed directly
+					// Support for accessing deleted objects coming soon...
+				});
+
+			});
+
+			console.log(`\n`);
+			// ***************************************************************************
+
+
+
+
+
+
+
+
 		});
 	}
 );
+
