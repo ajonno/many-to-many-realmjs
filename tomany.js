@@ -87,12 +87,13 @@ Realm.Sync.User.login(`https://${realm_server}`, username, password).then(
 
          //
          //
-         console.log("\n\nOBSERVER EXAMPLES\n")
+         console.log("OBSERVER EXAMPLES")
          //
          //
 
 			// EXAMPLE 5 *** all golfers in club = Yarrabend Golf Club ******
 			// Observe Collection Notifications
+			console.log("\nListening for changes: all golfers in Yarrabend Golf Club")
 			golfersInClub.addListener((golfers, changes) => {
 
 				// Update UI in response to inserted objects
