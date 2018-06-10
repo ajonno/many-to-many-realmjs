@@ -4,8 +4,6 @@ const realm_server = "iostestapp.us1.cloud.realm.io";
 const username = "test-user";
 const password = "password";
 
-var NOTIFIER_PATH = '^/([^/]+)/private$';
-
 const golferSchema = {
 	name: "Golfer",
 	properties: {
@@ -26,14 +24,94 @@ const clubSchema = {
 			type: "linkingObjects",
 			objectType: "Golfer",
 			property: "clubs"
+		},
+		courses: {
+			type: "list",
+			objectType: "Course"
+		},
+
+	}
+};
+
+const courseSchema = {
+	name: "Course",
+	properties: {
+		courseName: "string",
+		club: {
+			type: "linkingObjects",
+			objectType: "Club",
+			property: "courses"
+		},
+		courseHoles: {
+			type: "list",
+			objectType: "CourseHole"
 		}
 	}
 };
 
+const courseHolesSchema = {
+	name: "CourseHole",
+	properties: {
+		courseHoleName: "string",
+		course: {
+			type: "linkingObjects",
+			objectType: "Course",
+			property: "courseHoles"
+		}
+	}
+};
+
+//******* TEST ONE TO MANY (no links) ******
+
+//notes:
+//1. i could not add a Person without also adding a Pet (required). "null" is NOT ok for a Pet. Need at least one.
+const personSchema = {
+	name: "Person",
+	properties: {
+		name: "string",
+		pets: {
+			type: "list",
+			objectType: "Pet"
+		}
+	}
+};
+const petSchema = {
+	name: "Pet",
+	properties: {
+		petName: "string"
+	}
+};
+
+const personWithLinkSchema = {
+	name: "PersonWithLink",
+	properties: {
+		name: "string",
+		pets: {
+			type: "list",
+			objectType: "PetWithLink"
+		}
+	}
+};const petWithLinkSchema = {
+	name: "PetWithLink",
+	properties: {
+		petName: "string",
+		personWithLink: {
+			type: "linkingObjects",
+			objectType: "PersonWithLink",
+			property: "pets"
+		}
+
+	}
+};
+
+//******* END -- TEST ONE TO MANY (no links) ******
+
+
+
 Realm.Sync.User.login(`https://${realm_server}`, username, password).then(
 	user => {
 		Realm.open({
-			schema: [golferSchema, clubSchema],
+			schema: [golferSchema, clubSchema, courseSchema, courseHolesSchema, petSchema, personSchema, petWithLinkSchema, personWithLinkSchema],
 			sync: {
 				user: user,
 				url: `realms://${realm_server}/golf`
@@ -87,13 +165,13 @@ Realm.Sync.User.login(`https://${realm_server}`, username, password).then(
 
          //
          //
-         console.log("OBSERVER EXAMPLES")
+         console.log("OBSERVER EXAMPLE")
          //
          //
 
 			// EXAMPLE 5 *** all golfers in club = Yarrabend Golf Club ******
 			// Observe Collection Notifications
-			console.log("\nListening for changes: all golfers in Yarrabend Golf Club")
+			console.log("NB: ==> now listening for changes re: all golfers in Yarrabend Golf Club")
 			golfersInClub.addListener((golfers, changes) => {
 
 				// Update UI in response to inserted objects
@@ -115,13 +193,37 @@ Realm.Sync.User.login(`https://${realm_server}`, username, password).then(
 				});
 
 			});
-
-			console.log(`\n`);
 			// ***************************************************************************
 
 
 
+			// PET TESTING ***************************************************************************
 
+			console.log("*************************************************************************************************")
+
+			console.log("\n\nLINKINGOBJECT EXAMPLES")
+			console.log("----------------------")
+
+			// EXAMPLE 1 -> query a single pet (Fido) and see if it ALSO returns the Person(s) that have Fido
+			const fidoOwners = realm.objects("Pet").filtered(`petName = "Fido"`);
+			console.log(`\n1. Who owns Fido ?`);
+			for (let p of fidoOwners) {
+				console.log(`pet: ${p.petName}`);
+			}
+			console.log(`THIS DOES NOT/CAN NOT RETURN WHO (Person) OWNS FIDO, BECAUSE THE petSchema DOES NOT HAVE A linkingObjects PROPERTY\n`);
+
+
+			// EXAMPLE 2 -> same as EXAMPLE 1 a single pet (Grover) and see if it ALSO returns the Person(s) that have Grover
+			const grover = realm.objects("PetWithLink").filtered(`petName = "Grover"`);
+			console.log(`2. Who owns Grover ?`);
+
+			var personThatOwnsGrover = grover[0].personWithLink
+
+			console.log(`personThatOwnsGrover. ${personThatOwnsGrover[0].name}\n`);
+
+				//note: you only need to loop through personThatOwnsGrover if there is more than one
+
+			// ***************************************************************************************
 
 
 
