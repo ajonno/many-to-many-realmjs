@@ -117,6 +117,11 @@ Realm.Sync.User.login(`https://${realm_server}`, username, password).then(
 				url: `realms://${realm_server}/golf`
 			}
 		}).then(realm => {
+
+			console.log("\n\nQUERY EXAMPLES (using linkingObjects)")
+			console.log("-------------------------------------")
+
+
 			//
 			// EXAMPLE 1 *** get all Clubs for Golfer "Gus" ******************************
 			const golfer = realm.objects("Golfer").filtered(`name = 'Gus'`);
@@ -160,14 +165,42 @@ Realm.Sync.User.login(`https://${realm_server}`, username, password).then(
 			for (let p of clubs) {
 				console.log(`golfer: ${p.name}`);
 			}
-			console.log(`\n`);
 			// ***************************************************************************
 
-         //
-         //
-         console.log("OBSERVER EXAMPLE")
-         //
-         //
+			// PET TESTING ***************************************************************************
+
+			console.log("\n*************************************************************************************************")
+
+			console.log("\nLINKINGOBJECT EXAMPLES")
+			console.log("----------------------")
+
+			// EXAMPLE 1 -> query a single pet (Fido) and see if it ALSO returns the Person(s) that have Fido
+			const fidoOwners = realm.objects("Pet").filtered(`petName = "Fido"`);
+			console.log(`\n1. Who owns Fido ?`);
+			for (let p of fidoOwners) {
+				console.log(`pet: ${p.petName}`);
+			}
+			console.log(`THIS DOES NOT/CAN NOT RETURN WHO (Person) OWNS FIDO, BECAUSE THE petSchema DOES NOT HAVE A linkingObjects PROPERTY\n`);
+
+
+			// EXAMPLE 2 -> same as EXAMPLE 1 a single pet (Grover) and see if it ALSO returns the Person(s) that have Grover
+			const grover = realm.objects("PetWithLink").filtered(`petName = "Grover"`);
+			console.log(`2. Who owns Grover ?`);
+
+			var personThatOwnsGrover = grover[0].personWithLink
+
+			console.log(`personThatOwnsGrover. ${personThatOwnsGrover[0].name}\n\n`);
+
+				//note: you only need to loop through personThatOwnsGrover if there is more than one
+
+			// ***************************************************************************************
+
+			//
+			//
+			console.log("*************************************************************************************************\n")
+			console.log("OBSERVER EXAMPLE")
+			//
+			//
 
 			// EXAMPLE 5 *** all golfers in club = Yarrabend Golf Club ******
 			// Observe Collection Notifications
@@ -193,37 +226,9 @@ Realm.Sync.User.login(`https://${realm_server}`, username, password).then(
 				});
 
 			});
+
+			console.log("\n\n\n")
 			// ***************************************************************************
-
-
-
-			// PET TESTING ***************************************************************************
-
-			console.log("*************************************************************************************************")
-
-			console.log("\n\nLINKINGOBJECT EXAMPLES")
-			console.log("----------------------")
-
-			// EXAMPLE 1 -> query a single pet (Fido) and see if it ALSO returns the Person(s) that have Fido
-			const fidoOwners = realm.objects("Pet").filtered(`petName = "Fido"`);
-			console.log(`\n1. Who owns Fido ?`);
-			for (let p of fidoOwners) {
-				console.log(`pet: ${p.petName}`);
-			}
-			console.log(`THIS DOES NOT/CAN NOT RETURN WHO (Person) OWNS FIDO, BECAUSE THE petSchema DOES NOT HAVE A linkingObjects PROPERTY\n`);
-
-
-			// EXAMPLE 2 -> same as EXAMPLE 1 a single pet (Grover) and see if it ALSO returns the Person(s) that have Grover
-			const grover = realm.objects("PetWithLink").filtered(`petName = "Grover"`);
-			console.log(`2. Who owns Grover ?`);
-
-			var personThatOwnsGrover = grover[0].personWithLink
-
-			console.log(`personThatOwnsGrover. ${personThatOwnsGrover[0].name}\n`);
-
-				//note: you only need to loop through personThatOwnsGrover if there is more than one
-
-			// ***************************************************************************************
 
 
 
