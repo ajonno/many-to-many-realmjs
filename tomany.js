@@ -167,6 +167,8 @@ Realm.Sync.User.login(`https://${realm_server}`, username, password).then(
 			}
 			// ***************************************************************************
 
+
+
 			// PET TESTING ***************************************************************************
 
 			console.log("\n*************************************************************************************************")
@@ -226,6 +228,44 @@ Realm.Sync.User.login(`https://${realm_server}`, username, password).then(
 				});
 
 			});
+
+			// realm.objects("Club").filtered(`name = 'The Australian Club'`).addListener((clubs, changes) => {
+			// 	// Update UI in response to inserted objects
+			// 	changes.insertions.forEach((index) => {
+			// 		let insertion = clubs[index];
+			// 		console.log("added Club:", insertion)
+			// 	});
+			//
+			// 	// Update UI in response to modified objects
+			// 	changes.modifications.forEach((index) => {
+			// 		let insertion = clubs[index];
+			// 		console.log("updated Club:", insertion)
+			// 	});
+			//
+			// })
+
+			console.log("\n\n*************************************************************************************************\n")
+			console.log("CREATE GOLFER EXAMPLE (where Club is linked via linkingObjects (golfers property)")
+			try {
+				console.log("..creating new Golfer 'Tiger' WITH a Club")
+
+				//find The Australian Club
+				const theAustralian = realm.objects("Club").filtered(`name = 'The Australian Club'`);
+
+				realm.write(() => {
+					realm.create('Golfer', {
+						name: 'Tiger',
+						clubs: theAustralian
+					});
+				});
+
+				//!!IMPORTANT NOTE. YOU NEED A *PRIMARY KEY* TO UPDATE. SO DIDN'T BOTHER IN THESE EXAMPLES SINCE THE
+				//GOLFER/CLUB TABLES DONE HAVE ONE. IS NO BIG DEAL FOR NOW.
+
+			} catch (e) {
+				console.log("Error on creation", e);
+			}
+
 
 			console.log("\n\n\n")
 			// ***************************************************************************
